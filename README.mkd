@@ -1,0 +1,7 @@
+Artificial301
+=============
+
+Artificial301 is a plugin to help to get real links behind some url proxy services, such as:
+
+* feedproxy.google.com
+* bit.ly

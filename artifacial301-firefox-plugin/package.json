@@ -1,0 +1,8 @@
+{
+    "id": "jid0-Zbxudv7eLt2BsDnZf0F2KqkqEVY", 
+    "dependencies": [
+        "jetpack-core"
+    ], 
+    "description": "Artificial301 helps you to get url behind proxy", 
+    "author": "Sunng (http://sunng.info)"
+}
