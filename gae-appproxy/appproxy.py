@@ -14,6 +14,10 @@ class AppProxy(webapp.RequestHandler):
             return 
         try:
             url = base64.b64decode(urllib.unquote(url))
+            if self.request.get('a', None) is not None:
+                l = list(url)
+                l.reverse()
+                url = ''.join(l)
         except:
             self.response.out.write("400 Bad Request")
             return 
