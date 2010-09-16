@@ -9,8 +9,14 @@ class AppProxy(webapp.RequestHandler):
     def get(self):
         """docstring for get"""
         url  = self.request.get('r')
-        if url is not None:
+        if url is None:
+            self.response.out.write("400 Bad Request")
+            return 
+        try:
             url = base64.b64decode(urllib.unquote(url))
+        except:
+            self.response.out.write("400 Bad Request")
+            return 
 
         urlcomps = urlparse.urlparse(url)
 
