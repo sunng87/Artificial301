@@ -1,5 +1,5 @@
 var contextMenu = require("context-menu");
-var tabs = require("tab-browser")
+var tabs = require("tabs")
 
 var reverse = function(str) {
     var chars=[];
@@ -12,7 +12,16 @@ var reverse = function(str) {
 };
 exports.reverse = reverse;
 
-var encode = function(url, base64func) {
+/* 
+ * this is a workaround 
+ * */
+var getBase64Func = function() {
+    var btoa = tabs.activeTab.contentWindow.btoa;
+    return btoa;
+};
+
+var encode = function(url) {
+    var base64func = getBase64Func();
     var reversed = reverse(url); 
     var base64d = base64func(reversed);
     var encoded = encodeURIComponent(base64d);
@@ -21,24 +30,47 @@ var encode = function(url, base64func) {
 }
 exports.encode = encode;
 
-var menuItem = contextMenu.Item({
-    label: "Artificial301",
+var remoteUrl = "http://artificial301.appspot.com/s?a=r&r=";
+var linkMenuItem = contextMenu.Item({
+    label: "Open with Artificial301",
 
-    context: "a[href]",
+    context: contextMenu.SelectorContext("a[href]"),
 
-    data: "http://artificial301.appspot.com/s?a=r&r=",
-//    data: "http://localhost:8080/s?r=",
+    data: remoteUrl,
 
-    onClick: function(contextObj, item) {
-        var anchor = contextObj.node;
-        var url = anchor.getAttribute('href');
-//        console.log(url);
-        var encoded = encode(url, contextObj.window.btoa);
+    contentScript: "on('click', function(node, data) {" +
+        "postMessage(node.href, data)" +
+        "});",
 
-        var target = item.data + encoded;
-
-        tabs.addTab(target);
+    onMessage: function(url, data) {
+        var encoded = encode(url);
+        var target = this.data + encoded;
+        tabs.open({
+            url:target, 
+            inBackground: true
+        });
     }
 });
 
-contextMenu.add(menuItem);
+var pageMenuItem = contextMenu.Item({
+    label: "Reload with Artificial301",
+
+    context: contextMenu.PageContext(),
+
+    data: remoteUrl,
+
+    contentScript: "on('click', function(node, data) {" +
+            "postMessage(window.location.href, data);" +
+        "});",
+
+    onMessage: function(url, data) {
+        var encoded = encode(url);
+        var target = this.data + encoded;
+        tabs.activeTab.location = target;
+    }
+
+});
+
+contextMenu.add(linkMenuItem);
+contextMenu.add(pageMenuItem)
+
